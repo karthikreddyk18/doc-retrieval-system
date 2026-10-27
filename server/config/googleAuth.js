@@ -7,24 +7,26 @@ import {
   updateAccountTokens,
 } from './db.js';
 
-// In-memory runtime cache of active OAuth2 clients
 const activeDriveClients = new Map();
 
-/**
- * Check if Google OAuth credentials are configured in environment
- */
 export function isGoogleAuthConfigured() {
   return Boolean(
     process.env.GOOGLE_CLIENT_ID &&
     process.env.GOOGLE_CLIENT_SECRET &&
-    process.env.GOOGLE_CLIENT_ID !== 'your_google_client_id_here'
+    process.env.GOOGLE_CLIENT_ID !== 'your_google_client_id_here' &&
+    process.env.GOOGLE_CLIENT_SECRET !== 'your_google_client_secret_here'
   );
 }
 
-/**
- * Create a fresh Google OAuth2 client
- */
+export function isDemoDriveEnabled() {
+  return process.env.ALLOW_DEMO_DRIVE === 'true' || process.env.ALLOW_DEMO_DRIVE === '1';
+}
+
 export function createOAuth2Client() {
+  if (!isGoogleAuthConfigured()) {
+    throw new Error('Google OAuth credentials are not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in the server environment.');
+  }
+
   return new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -32,9 +34,6 @@ export function createOAuth2Client() {
   );
 }
 
-/**
- * Generate OAuth Consent URL
- */
 export function getAuthUrl() {
   if (!isGoogleAuthConfigured()) {
     throw new Error('Google OAuth credentials (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) are not configured.');
@@ -50,26 +49,29 @@ export function getAuthUrl() {
   return oauth2Client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
+    include_granted_scopes: true,
     scope: scopes,
   });
 }
 
-/**
- * Handle OAuth callback code, exchange for tokens, and persist to SQLite
- */
 export async function handleOAuthCallback(code) {
+  if (!code) {
+    throw new Error('Authorization code missing.');
+  }
+
   const oauth2Client = createOAuth2Client();
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
 
-  // Retrieve user identity from Google OAuth2 API
   const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
   const userInfo = await oauth2.userinfo.get();
   const email = userInfo.data.email || 'unknown@gmail.com';
   const name = userInfo.data.name || email.split('@')[0];
   const picture = userInfo.data.picture || '';
   const accountId = userInfo.data.id || email;
+  const now = new Date().toISOString();
 
+  const existing = getAccount(accountId);
   const accountRecord = {
     id: accountId,
     email,
@@ -77,13 +79,14 @@ export async function handleOAuthCallback(code) {
     picture,
     tokens,
     isDemo: false,
-    connectedAt: new Date().toISOString(),
+    status: 'connected',
+    connectedAt: existing?.connectedAt || now,
+    lastSyncAt: existing?.lastSyncAt || null,
+    updatedAt: now,
+    userId: existing?.userId || null,
   };
 
-  // Persist to SQLite
   saveAccount(accountRecord);
-
-  // Cache Drive client instance
   activeDriveClients.set(accountId, oauth2Client);
 
   return {
@@ -92,13 +95,12 @@ export async function handleOAuthCallback(code) {
     name: accountRecord.name,
     picture: accountRecord.picture,
     isDemo: false,
+    status: 'connected',
     connectedAt: accountRecord.connectedAt,
+    lastSyncAt: accountRecord.lastSyncAt,
   };
 }
 
-/**
- * Get all connected accounts list (from SQLite, sanitized without sensitive tokens)
- */
 export function getConnectedAccounts() {
   const accounts = getAllAccounts();
   return accounts.map((acc) => ({
@@ -107,13 +109,12 @@ export function getConnectedAccounts() {
     name: acc.name,
     picture: acc.picture,
     isDemo: Boolean(acc.isDemo),
+    status: acc.status || 'connected',
     connectedAt: acc.connectedAt,
+    lastSyncAt: acc.lastSyncAt,
   }));
 }
 
-/**
- * Get Google Drive API client for a specific connected account
- */
 export function getDriveClientForAccount(accountId) {
   const account = getAccount(accountId);
   if (!account) {
@@ -121,17 +122,19 @@ export function getDriveClientForAccount(accountId) {
   }
 
   if (account.isDemo) {
+    if (!isDemoDriveEnabled()) {
+      throw new Error('Demo Drive mode is disabled. Connect a real Google Drive account or enable ALLOW_DEMO_DRIVE=true.');
+    }
     return { isDemo: true, account };
   }
 
   let oauth2Client = activeDriveClients.get(accountId);
   if (!oauth2Client) {
     oauth2Client = createOAuth2Client();
-    oauth2Client.setCredentials(account.tokens);
+    oauth2Client.setCredentials(account.tokens || {});
 
-    // Persist refreshed tokens back to SQLite automatically
     oauth2Client.on('tokens', (newTokens) => {
-      const mergedTokens = { ...account.tokens, ...newTokens };
+      const mergedTokens = { ...(account.tokens || {}), ...newTokens };
       account.tokens = mergedTokens;
       updateAccountTokens(accountId, mergedTokens);
       console.log(`[GoogleAuth] Refreshed and persisted tokens for account: ${account.email}`);
@@ -147,18 +150,16 @@ export function getDriveClientForAccount(accountId) {
   };
 }
 
-/**
- * Disconnect an account and delete from SQLite
- */
 export async function disconnectAccount(accountId) {
   activeDriveClients.delete(accountId);
   return deleteAccount(accountId);
 }
 
-/**
- * Toggle demo Google Drive account for zero-config testing (persisted in SQLite)
- */
 export async function toggleDemoAccount(enable = true) {
+  if (!isDemoDriveEnabled() && enable) {
+    throw new Error('Demo Drive mode is disabled. Set ALLOW_DEMO_DRIVE=true to enable it.');
+  }
+
   const demoId = 'demo-gdrive-account-1';
   if (enable) {
     const demoAccount = {
@@ -168,11 +169,14 @@ export async function toggleDemoAccount(enable = true) {
       picture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
       tokens: {},
       isDemo: true,
+      status: 'connected',
       connectedAt: new Date().toISOString(),
+      lastSyncAt: new Date().toISOString(),
     };
     saveAccount(demoAccount);
   } else {
     deleteAccount(demoId);
   }
+
   return getConnectedAccounts();
 }
