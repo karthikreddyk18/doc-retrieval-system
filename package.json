@@ -1,0 +1,29 @@
+{
+  "name": "agentic-doc-retrieval-system",
+  "version": "1.0.0",
+  "description": "Agentic AI-Based Intelligent Document Discovery and Retrieval System across Local Storage and Google Drive",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "start:server": "npm start --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build:client": "npm run build --prefix client",
+    "test": "npm test --prefix server"
+  },
+  "keywords": [
+    "gemini",
+    "agentic-ai",
+    "function-calling",
+    "document-retrieval",
+    "google-drive",
+    "pdf-parse",
+    "mammoth",
+    "sqlite",
+    "react19",
+    "vite",
+    "express"
+  ],
+  "author": "KANCHANAKUNTLA KARTHIK REDDY",
+  "license": "MIT"
+}

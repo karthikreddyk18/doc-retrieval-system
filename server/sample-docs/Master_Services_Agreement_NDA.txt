@@ -1,0 +1,31 @@
+MASTER SERVICES & MUTUAL NON-DISCLOSURE AGREEMENT (NDA)
+Contract Reference: MSA-2025-ALPHA-098
+Effective Date: November 1, 2025
+
+PARTIES:
+1. Apex AI Technologies Inc., a Delaware corporation ("Disclosing Party" / "Provider")
+2. Global Enterprise Solutions LLC, a California corporation ("Receiving Party" / "Client")
+
+RECITALS:
+The parties wish to explore a collaborative evaluation of Provider's Agentic AI Document Discovery and Intelligent Search Platform across Client's corporate Google Drive repositories and local engineering network file stores.
+
+TERMS & CONDITIONS:
+
+1. DEFINITION OF CONFIDENTIAL INFORMATION
+"Confidential Information" refers to all proprietary software, API integration tokens, algorithmic indexing methodologies, customer telemetry, financial statements, and technical roadmaps disclosed either orally or in writing.
+
+2. OBLIGATIONS OF RECEIVING PARTY
+The Receiving Party agrees to:
+a. Hold all Confidential Information in strict confidence, exercising at least the same degree of care it utilizes for its own sensitive data (and never less than reasonable care).
+b. Refrain from reverse engineering, disassembling, or decompiling any software binaries or AI function calling schemas.
+c. Limit disclosure solely to employees, contractors, and legal advisors who need access to perform the mutual evaluation and who are bound by non-disclosure terms no less protective than this Agreement.
+
+3. DATA RETENTION & SECURITY ASSURANCES
+Provider warrants that document indexing routines are ephemeral: parsed document contents retrieved from Client's Google Drive or local storage are processed in transient memory and not permanently stored without Client's affirmative written opt-in.
+
+4. TERM & TERMINATION
+This Agreement remains in effect for a period of three (3) years from the Effective Date. Either party may terminate with thirty (30) days prior written notice.
+
+IN WITNESS WHEREOF, the authorized representatives of the parties have executed this Agreement.
+Signed: Apex AI Technologies Inc. (By: Chief Executive Officer)
+Signed: Global Enterprise Solutions LLC (By: Senior VP Procurement)

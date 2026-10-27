@@ -1,0 +1,26 @@
+# Executive Summary: Q3 2025 Financial Performance Report
+Date: September 30, 2025
+Prepared by: Corporate Finance & Strategic Planning Team
+Status: Final Audited Report
+
+## 1. Overall Revenue & Growth
+Total consolidated revenue for Q3 2025 reached $48.6 million, representing a 28.4% year-over-year increase compared to Q3 2024 ($37.8 million). The primary growth drivers were enterprise AI subscriptions, cloud storage connectors, and intelligent search enterprise licensing.
+
+- Enterprise ARR (Annual Recurring Revenue): $184.2 million (+32% YoY)
+- Gross Margin: 76.8% (up from 72.1% in Q2 2025)
+- Operating Margin: 18.2%
+- Net Operating Income: $8.85 million
+- Free Cash Flow: $11.4 million
+
+## 2. Segment Breakdown
+- Cloud Data Retrieval & Document Search: $24.1 million (49.6% of total revenue)
+- AI Agent Platform & Tooling: $16.3 million (33.5% of total revenue)
+- Professional Services & Implementation: $8.2 million (16.9% of total revenue)
+
+## 3. Operational Costs & Cloud Expenditures
+R&D investments accounted for $14.2 million, prioritizing Gemini 2.5/3.8 Flash integrations, on-demand document parsing pipelines, and zero-trust document security. Infrastructure hosting and Google Cloud Platform (GCP) bandwidth costs totaled $3.8 million, showing an efficiency improvement of 12% per query indexed.
+
+## 4. Q4 2025 Guidance & Forecast
+- Anticipated Q4 revenue between $53 million and $56 million.
+- Projected full-year 2025 revenue: $192 million.
+- Capital expenditure allocation: $6 million for expanding regional multi-cloud document retrieval clusters and edge indexing.
